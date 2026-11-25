@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://u84exrwmhkta"]
+
+[ext_resource type="Script" uid="uid://b3jvh2d4uuk10" path="res://TrashPileGrid.cs" id="1_gjvw1"]
+
+[node name="Node2D" type="HBoxContainer" unique_id=1329379506]
+
+[node name="Buy buttons" type="VBoxContainer" parent="." unique_id=148542282]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Buy buttons" unique_id=1308767546]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="Buy buttons/HBoxContainer" unique_id=1045440260]
+layout_mode = 2
+text = "Take on trashbag"
+
+[node name="Euro" type="Label" parent="Buy buttons/HBoxContainer" unique_id=1687128675]
+layout_mode = 2
+text = "€"
+
+[node name="Price" type="Label" parent="Buy buttons/HBoxContainer" unique_id=1556830539]
+layout_mode = 2
+text = "1.00"
+
+[node name="Grid" type="Control" parent="." unique_id=37238220]
+layout_mode = 2
+script = ExtResource("1_gjvw1")
