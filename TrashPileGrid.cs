@@ -2,9 +2,14 @@ using Godot;
 using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using TrashHeap;
 
 public partial class TrashPileGrid : Control
 {
+	[Export]
+	Node ContaminationUiOwner;
+
+	Contamination Contamination = new Contamination();
 
 	[Export]
 	int Width = 15;
@@ -18,6 +23,8 @@ public partial class TrashPileGrid : Control
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		SetSize(new Vector2(30 * Width, 30 * Height));
+		SetAnchorsAndOffsetsPreset(LayoutPreset.CenterBottom, LayoutPresetMode.KeepSize);
 		Grid = new TrashPileSlot[Width,Height];
 		for (int x = 0; x < Width; x++)
 		{
@@ -26,12 +33,39 @@ public partial class TrashPileGrid : Control
 				Populate(x,y);
 			}
 		}
-		Size = new Vector2(30 * Width, 30 * Height);
-	}
+
+		if (ContaminationUiOwner != null)
+			ContaminationUiOwner.AddChild(new ContaminationUi(Contamination));
+
+    }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		for (int x = 0; x < Width; x++)
+		{
+			for (int y = 0; y < Height; y++)
+			{
+				Contamination.Merge(Grid[x, y].Simulate((float)delta, x, y, this));
+			}
+		}
+	}
+
+	public TrashPileSlot TryGet(int x, int y)
+	{
+		if (x < 0)
+			return null;
+
+		if (y < 0)
+			return null;
+
+		if (x >= Width)
+			return null;
+
+		if (y >= Height)
+			return null;
+
+		return Grid[x, y];
 	}
 
 	private void Populate(int x, int y)
