@@ -11,6 +11,7 @@ namespace TrashHeap
         Plastic,
         Cardboard,
         Paper,
+        Pulp,
         Organics,
         Electronics,
         Batteries,
@@ -19,13 +20,12 @@ namespace TrashHeap
         Chemical
     }
 
-    public class Decomposition
+    public class BreakDown
     {
         public float BaseRate;
         public Dictionary<TrashType, float> Into;
-        public Dictionary<ContaminationType, float> Contamination;
 
-        public float Decompose(float delta, Conditions conditions, Contamination contam, float value, Trash target)
+        public float Decompose(float delta, Conditions conditions, float value, Trash target)
         {
             float decomposed = value * delta * BaseRate; // TODO: apply multiplier based on conditions
             if (decomposed > value)
@@ -34,7 +34,22 @@ namespace TrashHeap
             foreach (KeyValuePair<TrashType, float> kv in Into)
                 target.Add(kv.Key, kv.Value * decomposed);
 
-            foreach (KeyValuePair<ContaminationType, float> kv in Contamination)
+            return decomposed;
+        }
+    }
+
+    public class Pollute
+    {
+        public float BaseRate;
+        public Dictionary<ContaminationType, float> Into;
+
+        public float Decompose(float delta, Conditions conditions, Contamination contam, float value, Trash target)
+        {
+            float decomposed = value * delta * BaseRate; // TODO: apply multiplier based on conditions
+            if (decomposed > value)
+                decomposed = value;
+
+            foreach (KeyValuePair<ContaminationType, float> kv in Into)
                 contam.Add(kv.Key, kv.Value * decomposed);
 
             return decomposed;
@@ -43,9 +58,9 @@ namespace TrashHeap
 
     public class Trash
     {
-        static readonly Dictionary<TrashType, Decomposition> Decomposing = new Dictionary<TrashType, Decomposition>
+        static readonly Dictionary<TrashType, BreakDown> Breakdowns = new Dictionary<TrashType, BreakDown>
         {
-            { TrashType.Batteries, new Decomposition{
+            { TrashType.Batteries, new BreakDown{
                 BaseRate = 1.0f/600.0f,
                 Into = new Dictionary<TrashType, float>
                 {
@@ -53,16 +68,45 @@ namespace TrashHeap
                     { TrashType.Plastic, 0.1f },
                     { TrashType.Chemical, 0.7f }
                 },
-                Contamination = new Dictionary<ContaminationType, float>
-                {
-                    { ContaminationType.Liquid, 10.0f }
-                }
             } },
-            { TrashType.Organics, new Decomposition
+            { TrashType.Paper, new BreakDown{
+                BaseRate = 1.0f/600.0f,
+                Into = new Dictionary<TrashType, float>
+                {
+                    { TrashType.Pulp, 1.0f },
+                },
+            } },
+            { TrashType.Cardboard, new BreakDown{
+                BaseRate = 1.0f/200.0f,
+                Into = new Dictionary<TrashType, float>
+                {
+                    { TrashType.Pulp, 0.2f },
+                    { TrashType.Paper, 0.8f },
+                },
+            } },
+            { TrashType.Pulp, new BreakDown{
+                BaseRate = 1.0f/60.0f,
+                Into = new Dictionary<TrashType, float>
+                {
+                    { TrashType.Organics, 0.9f },
+                    { TrashType.Chemical, 0.1f },
+                },
+            } }
+        };
+
+        static readonly Dictionary<TrashType, Pollute> Polluters = new Dictionary<TrashType, Pollute>
+        {
+            { TrashType.Chemical, new Pollute {
+                BaseRate = 1.0f/300.0f,
+                Into = new Dictionary<ContaminationType, float>
+                { 
+                    {ContaminationType.Liquid, 100.0f } 
+                },
+            } },
+            { TrashType.Organics, new Pollute
             {
                 BaseRate = 1.0f/60.0f,
-                Into = new Dictionary<TrashType, float> { },
-                Contamination = new Dictionary<ContaminationType, float>
+                Into = new Dictionary<ContaminationType, float>
                 {
                     { ContaminationType.Liquid, 0.1f },
                     { ContaminationType.Gaseous, 0.5f }
@@ -76,7 +120,13 @@ namespace TrashHeap
         public Contamination Decompose(float delta, Conditions conditions)
         {
             Contamination contam = new Contamination();
-            foreach (KeyValuePair<TrashType, Decomposition> kv in Decomposing)
+            foreach (KeyValuePair<TrashType, BreakDown> kv in Breakdowns)
+            {
+                if (Amounts.ContainsKey(kv.Key))
+                    Amounts[kv.Key] -= kv.Value.Decompose(delta, conditions, Amounts[kv.Key], this);
+            }
+
+            foreach (KeyValuePair<TrashType, Pollute> kv in Polluters)
             {
                 if (Amounts.ContainsKey(kv.Key))
                     Amounts[kv.Key] -= kv.Value.Decompose(delta, conditions, contam, Amounts[kv.Key], this);

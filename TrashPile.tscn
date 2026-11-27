@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b3jvh2d4uuk10" path="res://TrashPileGrid.cs" id="1_gjvw1"]
 [ext_resource type="Script" uid="uid://dfck2ormuhje3" path="res://TakeOnTrash.cs" id="2_gjvw1"]
+[ext_resource type="Script" uid="uid://de1aedeasiwwc" path="res://CashUi.cs" id="3_667dr"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ye5mo"]
 bg_color = Color(0.27752772, 0.27752775, 0.27752757, 1)
@@ -41,39 +42,42 @@ offset_top = 8.0
 offset_right = 273.0
 offset_bottom = 40.0
 
-[node name="Mixed" type="Button" parent="Buy buttons" unique_id=1758762872 node_paths=PackedStringArray("Target")]
+[node name="Mixed" type="Button" parent="Buy buttons" unique_id=1758762872 node_paths=PackedStringArray("Target", "Cash")]
 layout_mode = 2
 script = ExtResource("2_gjvw1")
 Target = NodePath("../../Scrollbox/Containers")
+Cash = NodePath("../../Resources/Cash")
 Contents = Dictionary[int, float]({
 0: 0.01,
 1: 0.1,
 3: 0.2,
-4: 0.0,
-5: 0.001,
-7: 0.01
+4: 0.2,
+5: 0.004,
+6: 0.001
 })
 Price = -1.0
 BagName = "Mixed"
 
-[node name="Green" type="Button" parent="Buy buttons" unique_id=1495906271 node_paths=PackedStringArray("Target")]
+[node name="Green" type="Button" parent="Buy buttons" unique_id=1495906271 node_paths=PackedStringArray("Target", "Cash")]
 layout_mode = 2
 script = ExtResource("2_gjvw1")
 Target = NodePath("../../Scrollbox/Containers")
+Cash = NodePath("../../Resources/Cash")
 Contents = Dictionary[int, float]({
 1: 0.2,
 2: 0.05,
-3: 0.3
+4: 0.3
 })
 Price = -0.1
 BagName = "Greenery"
 
-[node name="Just batteries" type="Button" parent="Buy buttons" unique_id=308113727 node_paths=PackedStringArray("Target")]
+[node name="Just batteries" type="Button" parent="Buy buttons" unique_id=308113727 node_paths=PackedStringArray("Target", "Cash")]
 layout_mode = 2
 script = ExtResource("2_gjvw1")
 Target = NodePath("../../Scrollbox/Containers")
+Cash = NodePath("../../Resources/Cash")
 Contents = Dictionary[int, float]({
-5: 0.5
+6: 0.5
 })
 Price = -10.0
 BagName = "a bunch of old batteries"
@@ -84,8 +88,11 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -680.0
-offset_bottom = 300.0
+offset_top = 40.0
+offset_bottom = 340.0
 grow_horizontal = 0
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, 40)
 
 [node name="Containers" type="HBoxContainer" parent="Scrollbox" unique_id=1087448169]
 layout_mode = 2
@@ -102,3 +109,17 @@ offset_top = -20.0
 offset_bottom = 20.0
 grow_horizontal = 0
 grow_vertical = 2
+
+[node name="Resources" type="PanelContainer" parent="." unique_id=1306287446]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_bottom = 40.0
+grow_horizontal = 0
+
+[node name="Cash" type="Label" parent="Resources" unique_id=1568715011]
+layout_mode = 2
+text = "Cash: €0,00"
+script = ExtResource("3_667dr")

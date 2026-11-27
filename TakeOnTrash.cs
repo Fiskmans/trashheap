@@ -9,6 +9,9 @@ public partial class TakeOnTrash : Button
     public Node Target;
 
     [Export]
+    public Node Cash;
+
+    [Export]
     public Godot.Collections.Dictionary<TrashType, float> Contents = new Godot.Collections.Dictionary<TrashType, float>();
 
     [Export]
@@ -32,5 +35,7 @@ public partial class TakeOnTrash : Button
             bag.Trash.Add(kv.Key, kv.Value);
 
         Target?.AddChild(bag);
+        if (Cash is CashUi cashui)
+            cashui.Amount -= Price;
     }
 }
